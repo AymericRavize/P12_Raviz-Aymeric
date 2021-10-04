@@ -3,14 +3,16 @@ private class ContratsManagerTest {
    
     @isTest 
     static void testCreateContrat() {
-        // Call the method to test
+        // apelle la méthode à tester
 		Account acc =new Account(Name='accTest');
         insert acc;
         Date dt = Date.today();
+        Test.startTest();
         ID thisContractId = ContratsManager.createContract(acc.Id,1,dt,'Draft');
-        // Verify results
+        Test.stopTest();
+        // verifie que nous avons bien enregistré le contrat
         System.assert(thisContractId != null);
-        Contract thisContract = [SELECT Id,AccountId,ContractTerm,StartDate,Status FROM Contract WHERE Id=:thisContractId];//id,p1,... 
+        Contract thisContract = [SELECT Id,AccountId,ContractTerm,StartDate,Status FROM Contract WHERE Id=:thisContractId];
         System.assert(thisContract != null);
         System.assertEquals(thisContract.AccountId, acc.Id);
         System.assertEquals(thisContract.ContractTerm, 1);
@@ -21,6 +23,7 @@ private class ContratsManagerTest {
         
     @isTest
     static void testupdateContrat() {
+        //on crée les variables et objets permettant le test 
         Date dt =Date.today();
         Account acc =new Account(Name='accTest');
         insert acc;
@@ -31,10 +34,11 @@ private class ContratsManagerTest {
         request.addHeader('Content-Type', 'application/json');
         request.requestBody = Blob.valueOf('{"Status": "Activated"}');
         RestContext.request = request;
-        //regarder si on peut faire sans retourner l id
-        // Update status of existing record to Working
+        //apelle la fonction à tester
+        Test.startTest();
         ContratsManager.updateContract();
-        // Verify record was updated
+        Test.stopTest();
+        // verifie que les données sont celles attendues 
         Contract thisContract = [SELECT Id,AccountId,ContractTerm,StartDate,Status FROM Contract WHERE Id=:recordId]; 
         System.assert(thisContract != null);
         System.assertEquals(thisContract.AccountId, acc.Id);
@@ -42,9 +46,9 @@ private class ContratsManagerTest {
         System.assertEquals(thisContract.StartDate, dt);
         System.assertEquals(thisContract.Status, 'Activated');
     }  
-    // Helper method
+
     static Id createTestRecord(Date dt,Account acc) {
-        // Create test record
+        // crée un contrat
         Contract contratTest = new Contract(AccountId=acc.id,ContractTerm=1, StartDate=dt, Status='Draft');
         insert contratTest;
         return contratTest.Id;
